@@ -166,12 +166,12 @@ const AdminRouteList = ({
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Kelola Rute</h2>
         <div className="flex items-center space-x-3">
-          <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+          <span className="bg-pink-100 text-pink-800 text-sm px-3 py-1 rounded-full">
             Total: {routes ? routes.length : 0}
           </span>
           <button
             onClick={handleCreateClick}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors"
           >
             <i className="fas fa-plus mr-2"></i>
             Tambah Rute
@@ -425,7 +425,7 @@ const AdminRouteList = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors"
                 >
                   <i className="fas fa-plus mr-2"></i>
                   Tambah Rute
@@ -557,7 +557,7 @@ const AdminRouteList = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors"
                 >
                   <i className="fas fa-save mr-2"></i>
                   Simpan Perubahan

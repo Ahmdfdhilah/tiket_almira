@@ -118,7 +118,7 @@ const UserList = ({
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Kelola User</h2>
-        <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+        <span className="bg-pink-100 text-pink-800 text-sm px-3 py-1 rounded-full">
           Total: {users ? users.length : 0}
         </span>
       </div>
@@ -183,7 +183,7 @@ const UserList = ({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mr-4 ${
-                        user.role === 'admin' ? 'bg-red-600' : 'bg-blue-600'
+                        user.role === 'admin' ? 'bg-red-600' : 'bg-pink-500'
                       }`}>
                         {user.role === 'admin' ? (
                           <i className="fas fa-user-shield"></i>
@@ -232,7 +232,7 @@ const UserList = ({
                       {user.role !== 'admin' && (
                         <button
                           onClick={() => handleMakeAdmin(user.id_user, user.username)}
-                          className="text-blue-600 hover:text-blue-900 text-sm px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
+                          className="text-pink-600 hover:text-pink-900 text-sm px-3 py-1 rounded border border-pink-600 hover:bg-blue-50 transition-colors"
                           title="Jadikan Admin"
                         >
                           <i className="fas fa-user-shield mr-1"></i>
@@ -347,7 +347,7 @@ const UserList = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors"
                 >
                   <i className="fas fa-save mr-2"></i>
                   Simpan Perubahan

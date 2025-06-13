@@ -132,7 +132,7 @@ const PaymentStatusWidget = ({ tickets = [], loading = false }) => {
             <div className="text-center pt-4 border-t">
               <Link 
                 to="/my-tickets?filter=pending" 
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-pink-600 hover:text-pink-800 text-sm font-medium"
               >
                 Lihat {pendingPayments.length - 3} pembayaran lainnya →
               </Link>

@@ -456,7 +456,7 @@ const SeatSelection = ({
             <h3 className="font-bold text-lg">Pilih Kursi Anda</h3>
             <button
               onClick={refreshSeatData}
-              className="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors text-sm"
+              className="px-3 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors text-sm"
               disabled={loading}
             >
               <i className="fas fa-sync-alt mr-1"></i>
@@ -523,7 +523,7 @@ const SeatSelection = ({
                       {selectedSeatsList.map(seat => (
                         <span
                           key={seat}
-                          className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded font-medium"
+                          className="inline-block px-2 py-1 bg-pink-100 text-pink-800 rounded font-medium"
                         >
                           {seat}
                         </span>
@@ -554,7 +554,7 @@ const SeatSelection = ({
                   disabled={selectedSeatsList.length === 0 || isSubmitting}
                   className={`w-full mt-6 py-3 font-bold rounded-lg transition duration-300 ${selectedSeatsList.length === 0 || isSubmitting
                     ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-pink-500 text-white hover:bg-pink-700'
                     }`}
                 >
                   {isSubmitting ? (

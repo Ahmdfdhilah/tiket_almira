@@ -118,7 +118,7 @@ const TicketDetailPage = ({
             <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4">
               {error}
             </div>
-            <Link to="/my-tickets" className="text-blue-600 hover:underline">
+            <Link to="/my-tickets" className="text-pink-600 hover:underline">
               &larr; Kembali ke daftar tiket
             </Link>
           </div>
@@ -164,7 +164,7 @@ const TicketDetailPage = ({
             <div className="bg-yellow-100 text-yellow-700 p-4 rounded-lg mb-4">
               Data tiket tidak lengkap. Silakan coba muat ulang halaman.
             </div>
-            <Link to="/my-tickets" className="text-blue-600 hover:underline">
+            <Link to="/my-tickets" className="text-pink-600 hover:underline">
               &larr; Kembali ke daftar tiket
             </Link>
           </div>
@@ -183,7 +183,7 @@ const TicketDetailPage = ({
         <div className="container mx-auto px-4">
           <div className="mb-6 flex justify-between items-center">
             <div>
-              <Link to="/my-tickets" className="text-blue-600 hover:underline">
+              <Link to="/my-tickets" className="text-pink-600 hover:underline">
                 &larr; Kembali ke daftar tiket
               </Link>
               <h1 className="text-2xl font-bold mt-2">Detail Tiket</h1>
@@ -271,7 +271,7 @@ const TicketDetailPage = ({
                             {(Array.isArray(orderData.seats) ? orderData.seats : [orderData.seats]).map((seat, index) => (
                               <span
                                 key={index}
-                                className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium"
+                                className="inline-block px-2 py-1 bg-pink-100 text-pink-800 rounded text-sm font-medium"
                               >
                                 {seat}
                               </span>
@@ -283,7 +283,7 @@ const TicketDetailPage = ({
                             {ticket.nomor_kursi.map((seat, index) => (
                               <span
                                 key={index}
-                                className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium"
+                                className="inline-block px-2 py-1 bg-pink-100 text-pink-800 rounded text-sm font-medium"
                               >
                                 {seat}
                               </span>
@@ -374,7 +374,7 @@ const TicketDetailPage = ({
                   <button
                     onClick={handlePayNow}
                     disabled={paymentLoading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     {paymentLoading ? (
                       <div className="flex items-center">

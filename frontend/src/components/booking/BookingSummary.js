@@ -448,11 +448,11 @@ const BookingSummary = ({
                   />
                   <span className="text-sm">
                     Saya setuju dengan{' '}
-                    <a href="/terms" className="text-blue-600 hover:underline" target="_blank">
+                    <a href="/terms" className="text-pink-600 hover:underline" target="_blank">
                       Syarat dan Ketentuan
                     </a>{' '}
                     serta{' '}
-                    <a href="/privacy" className="text-blue-600 hover:underline" target="_blank">
+                    <a href="/privacy" className="text-pink-600 hover:underline" target="_blank">
                       Kebijakan Privasi
                     </a>. Saya memahami bahwa reservasi ini akan berakhir dalam waktu yang ditentukan.
                   </span>
@@ -465,7 +465,7 @@ const BookingSummary = ({
                 className={`w-full py-3 font-bold rounded-lg transition duration-300 ${
                   !agreeTerms || submitting || seatCount === 0 || seatConflictError
                     ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-pink-500 text-white hover:bg-pink-700'
                 }`}
               >
                 {submitting ? (
@@ -531,16 +531,16 @@ const BookingSummary = ({
                 <div className="bg-blue-50 p-3 rounded-lg mb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <i className="fas fa-ticket-alt text-blue-600 mr-2"></i>
-                      <span className="font-medium text-blue-800">
+                      <i className="fas fa-ticket-alt text-pink-600 mr-2"></i>
+                      <span className="font-medium text-pink-800">
                         Order {seatCount} Tiket
                       </span>
                     </div>
-                    <span className="text-blue-600 text-sm font-medium">
+                    <span className="text-pink-600 text-sm font-medium">
                       Single Payment
                     </span>
                   </div>
-                  <p className="text-xs text-blue-600 mt-1">
+                  <p className="text-xs text-pink-600 mt-1">
                     Satu pembayaran untuk semua tiket dalam order ini
                   </p>
                 </div>
@@ -579,7 +579,7 @@ const BookingSummary = ({
                       </div>
                       <button
                         onClick={() => navigate(`/booking/${routeId}`)}
-                        className="mt-2 text-blue-600 hover:text-blue-800 text-sm underline"
+                        className="mt-2 text-pink-600 hover:text-pink-800 text-sm underline"
                       >
                         Pilih kursi sekarang →
                       </button>
@@ -631,20 +631,20 @@ const BookingSummary = ({
             
             {/* Reservation Status */}
             <div className={`p-3 rounded-lg ${seatConflictError ? 'bg-red-50' : 'bg-blue-50'}`}>
-              <div className={`flex items-center ${seatConflictError ? 'text-red-800' : 'text-blue-800'}`}>
+              <div className={`flex items-center ${seatConflictError ? 'text-red-800' : 'text-pink-800'}`}>
                 <i className={`${seatConflictError ? 'fas fa-exclamation-triangle' : 'fas fa-info-circle'} mr-2`}></i>
                 <span className="font-medium text-sm">
                   {seatConflictError ? 'Kursi Tidak Tersedia' : 'Status: Direservasi'}
                 </span>
               </div>
-              <p className={`text-xs mt-1 ${seatConflictError ? 'text-red-600' : 'text-blue-600'}`}>
+              <p className={`text-xs mt-1 ${seatConflictError ? 'text-red-600' : 'text-pink-600'}`}>
                 {seatConflictError 
                   ? 'Kursi yang Anda pilih sudah tidak tersedia. Silakan pilih kursi lain.'
                   : 'Kursi Anda telah direservasi. Selesaikan pembayaran sebelum waktu habis.'
                 }
               </p>
               {minutesRemaining > 0 && !seatConflictError && (
-                <p className="text-xs text-blue-600 mt-1">
+                <p className="text-xs text-pink-600 mt-1">
                   Sisa waktu: {minutesRemaining} menit
                 </p>
               )}

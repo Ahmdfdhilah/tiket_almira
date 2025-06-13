@@ -29,14 +29,14 @@ const SearchResultsPage = ({ isAuthenticated }) => {
           
           {/* Login Prompt for Non-authenticated Users */}
           {!isAuthenticated && (
-            <div className="mt-8 bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <div className="mt-8 bg-blue-50 p-6 rounded-lg border border-pink-200">
               <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center">
                   <i className="fas fa-user text-white"></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-blue-800">Belum punya akun?</h3>
-                  <p className="text-blue-700 text-sm">
+                  <h3 className="font-bold text-pink-800">Belum punya akun?</h3>
+                  <p className="text-pink-700 text-sm">
                     Login atau daftar untuk menikmati kemudahan pemesanan tiket
                   </p>
                 </div>
@@ -44,13 +44,13 @@ const SearchResultsPage = ({ isAuthenticated }) => {
               <div className="flex space-x-3">
                 <a 
                   href="/login" 
-                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-pink-500 text-white font-medium rounded-lg hover:bg-pink-700 transition-colors"
                 >
                   Login
                 </a>
                 <a 
                   href="/register" 
-                  className="px-6 py-2 bg-white text-blue-600 font-medium rounded-lg border border-blue-600 hover:bg-blue-50 transition-colors"
+                  className="px-6 py-2 bg-white text-pink-600 font-medium rounded-lg border border-pink-600 hover:bg-blue-50 transition-colors"
                 >
                   Daftar
                 </a>

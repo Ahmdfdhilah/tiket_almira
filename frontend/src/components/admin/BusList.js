@@ -134,12 +134,12 @@ const BusList = ({
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Kelola Bus</h2>
         <div className="flex items-center space-x-3">
-          <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+          <span className="bg-pink-100 text-pink-800 text-sm px-3 py-1 rounded-full">
             Total: {buses ? buses.length : 0}
           </span>
           <button
             onClick={handleCreateClick}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors"
           >
             <i className="fas fa-plus mr-2"></i>
             Tambah Bus
@@ -193,7 +193,7 @@ const BusList = ({
                 <tr key={bus.id_bus} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mr-4 bg-blue-600">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mr-4 bg-pink-500">
                         <i className="fas fa-bus"></i>
                       </div>
                       <div>
@@ -312,7 +312,7 @@ const BusList = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors"
                 >
                   <i className="fas fa-plus mr-2"></i>
                   Tambah Bus
@@ -383,7 +383,7 @@ const BusList = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors"
                 >
                   <i className="fas fa-save mr-2"></i>
                   Simpan Perubahan

@@ -128,7 +128,7 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
       <div className="fixed top-4 right-4 print:hidden">
         <button
           onClick={handlePrint}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition"
         >
           <i className="fas fa-print mr-2"></i>
           Cetak

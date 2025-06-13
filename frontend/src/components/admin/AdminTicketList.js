@@ -113,7 +113,7 @@ const AdminTicketList = ({
   const statusOptions = [
     { value: 'pending', label: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
     { value: 'confirmed', label: 'Confirmed', color: 'bg-green-100 text-green-800' },
-    { value: 'completed', label: 'Completed', color: 'bg-blue-100 text-blue-800' },
+    { value: 'completed', label: 'Completed', color: 'bg-pink-100 text-pink-800' },
     { value: 'cancelled', label: 'Cancelled', color: 'bg-red-100 text-red-800' }
   ];
 
@@ -129,7 +129,7 @@ const AdminTicketList = ({
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Kelola Tiket</h2>
         <div className="flex items-center space-x-3">
-          <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+          <span className="bg-pink-100 text-pink-800 text-sm px-3 py-1 rounded-full">
             Total: {tickets ? tickets.length : 0}
           </span>
         </div>
@@ -248,7 +248,7 @@ const AdminTicketList = ({
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleStatusClick(ticket)}
-                          className="text-blue-600 hover:text-blue-900 text-sm px-3 py-1 rounded border border-blue-600 hover:bg-blue-50 transition-colors"
+                          className="text-pink-600 hover:text-pink-900 text-sm px-3 py-1 rounded border border-pink-600 hover:bg-blue-50 transition-colors"
                           title="Update Status"
                         >
                           <i className="fas fa-edit mr-1"></i>
@@ -322,7 +322,7 @@ const AdminTicketList = ({
               </button>
               <button
                 onClick={handleStatusSubmit}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors"
               >
                 <i className="fas fa-save mr-2"></i>
                 Update Status

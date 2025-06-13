@@ -147,7 +147,7 @@ const PaymentFinishPage = ({
               <div className="space-y-3">
                 <Link
                   to="/my-tickets"
-                  className="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  className="block w-full px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition"
                 >
                   Lihat Tiket Saya
                 </Link>
@@ -312,7 +312,7 @@ const PaymentFinishPage = ({
                   {(groupedTicketData?.order?.master_ticket_id || paymentData?.ticket?.id) && (
                     <Link
                       to={`/ticket/${groupedTicketData?.order?.master_ticket_id || paymentData.ticket.id}`}
-                      className="flex-1 px-4 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition"
+                      className="flex-1 px-4 py-3 bg-pink-500 text-white text-center rounded-lg hover:bg-pink-700 transition"
                     >
                       Lihat Detail Tiket
                     </Link>

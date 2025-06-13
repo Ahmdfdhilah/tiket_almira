@@ -60,7 +60,7 @@ const RouteList = ({ routes, loading, error, getRutes }) => {
         <p className="text-gray-600">{routes.length} rute tersedia</p>
         <button 
           onClick={handleRefresh}
-          className="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors text-sm"
+          className="px-3 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 transition-colors text-sm"
         >
           <i className="fas fa-sync-alt mr-1"></i>
           Refresh
@@ -106,8 +106,8 @@ const RouteList = ({ routes, loading, error, getRutes }) => {
               {/* Route Line */}
               <div className="flex-1 relative px-8">
                 <div className="border-t-2 border-gray-300 relative">
-                  <div className="absolute left-0 top-0 w-3 h-3 bg-blue-500 rounded-full transform -translate-y-1/2"></div>
-                  <div className="absolute right-0 top-0 w-3 h-3 bg-blue-500 rounded-full transform -translate-y-1/2"></div>
+                  <div className="absolute left-0 top-0 w-3 h-3 bg-pink-500 rounded-full transform -translate-y-1/2"></div>
+                  <div className="absolute right-0 top-0 w-3 h-3 bg-pink-500 rounded-full transform -translate-y-1/2"></div>
                 </div>
               </div>
               

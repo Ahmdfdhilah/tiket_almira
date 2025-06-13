@@ -168,7 +168,7 @@ const MyTicketsPage = ({ getUserTickets, createPaymentToken, setAlert, tickets, 
               </p>
               <Link
                 to="/search-results"
-                className="inline-block px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition"
+                className="inline-block px-6 py-2 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-700 transition"
               >
                 Pesan Tiket
               </Link>
@@ -192,7 +192,7 @@ const MyTicketsPage = ({ getUserTickets, createPaymentToken, setAlert, tickets, 
                           <div className="flex items-center mb-2">
                             <h2 className="text-xl font-bold">{route?.asal} → {route?.tujuan}</h2>
                             {order.type === 'order' && order.total_tickets > 1 && (
-                              <span className="ml-3 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                              <span className="ml-3 px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-sm font-medium">
                                 {order.total_tickets} Tiket
                               </span>
                             )}
@@ -261,7 +261,7 @@ const MyTicketsPage = ({ getUserTickets, createPaymentToken, setAlert, tickets, 
                             <button
                               onClick={() => handlePayNow(order)}
                               disabled={paymentLoading === ticketId}
-                              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
+                              className="inline-block px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
                               {paymentLoading === ticketId ? (
                                 <div className="flex items-center">
