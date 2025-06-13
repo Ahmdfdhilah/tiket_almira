@@ -75,15 +75,16 @@ exports.createPaymentToken = async (req, res) => {
     // Generate order ID
     const orderId = `ORDER-${ticket.id_tiket}-${Date.now()}`;
 
-    // Prepare payment parameter
+    // Prepare payment parameter dengan pembatasan metode pembayaran
     const parameter = {
       transaction_details: {
         order_id: orderId,
         gross_amount: parseInt(ticket.total_bayar)
       },
-      credit_card: {
-        secure: true
-      },
+      // HAPUS credit_card untuk disable kartu kredit
+      // credit_card: {
+      //   secure: true
+      // },
       customer_details: {
         first_name: ticket.User.username,
         email: ticket.User.email,
@@ -99,6 +100,13 @@ exports.createPaymentToken = async (req, res) => {
           category: 'Transportation',
           merchant_name: 'Tiket Bus Almira'
         }
+      ],
+      // TAMBAH: Konfigurasi metode pembayaran yang diizinkan
+      enabled_payments: [
+        'qris',       
+        'gopay',        
+        'shopeepay'     
+        ,'bca_va'
       ],
       callbacks: {
         finish: `${process.env.FRONTEND_URL}/payment/finish`,

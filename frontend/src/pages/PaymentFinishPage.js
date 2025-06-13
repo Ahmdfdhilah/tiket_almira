@@ -51,6 +51,15 @@ const PaymentFinishPage = ({
           // Show appropriate message based on status
           if (transactionStatus === 'settlement' || transactionStatus === 'capture') {
             setAlert('Pembayaran berhasil! Tiket Anda telah dikonfirmasi.', 'success');
+            
+            // PERBAIKAN: Clear session storage untuk selected seats setelah pembayaran berhasil
+            try {
+              sessionStorage.removeItem('selectedSeats');
+              sessionStorage.removeItem('routeId');
+              console.log('✅ Session storage cleared after successful payment');
+            } catch (error) {
+              console.warn('Could not clear session storage:', error);
+            }
           } else if (transactionStatus === 'pending') {
             setAlert('Pembayaran sedang diproses. Silakan tunggu konfirmasi.', 'info');
           } else if (transactionStatus === 'deny' || transactionStatus === 'cancel' || transactionStatus === 'expire') {

@@ -157,13 +157,13 @@ const SeatSelection = ({
     console.log('🎨 Seat colors updated:', statusMap); // Debug
   }, [availableSeats, generateAllSeats]);
 
-  // TAMBAHKAN auto-refresh
+  // TAMBAHKAN auto-refresh dengan interval lebih cepat
   useEffect(() => {
     if (!routeId) return;
 
     const interval = setInterval(() => {
       refreshSeatData();
-    }, 15000); // Refresh setiap 15 detik
+    }, 15000); // Refresh setiap 5 detik untuk real-time experience
 
     return () => clearInterval(interval);
   }, [routeId, refreshSeatData]);
@@ -258,6 +258,9 @@ const SeatSelection = ({
         const result = await createTempReservation(reservationData);
 
         if (result.success) {
+          // PERBAIKAN: Refresh seat data immediately after successful reservation
+          await refreshSeatData();
+
           let navigationUrl;
 
           if (result.reservations && result.reservations.length > 0) {
@@ -412,9 +415,10 @@ const SeatSelection = ({
     switch (status) {
       case 'available':
         return 'seat-available'; // ABU-ABU
+      case 'my_reservation':
+        return 'seat-my-reservation'; // BIRU - kursi yang saya reservasi
       case 'booked':
       case 'reserved':
-      case 'my_reservation':
       default:
         return 'seat-booked'; // MERAH
     }
@@ -460,8 +464,8 @@ const SeatSelection = ({
             </button>
           </div>
 
-          {/* Legend - 3 Status Saja */}
-          <div className="mb-6 flex justify-center space-x-6 flex-wrap">
+          {/* Legend - 4 Status */}
+          <div className="mb-6 flex justify-center space-x-4 flex-wrap">
             <div className="flex items-center mb-2">
               <div className="seat-available w-6 h-6 mr-2 rounded"></div>
               <span className="text-sm">Tersedia</span>

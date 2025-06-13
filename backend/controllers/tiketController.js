@@ -332,10 +332,10 @@ exports.getAvailableSeats = async (req, res) => {
         return { ...seat, status: 'booked' };
       } else if (reservedSeatInfo[seat.number]) {
         const reservationInfo = reservedSeatInfo[seat.number];
-        // SEMUA reservasi (termasuk my_reservation) = 'booked' untuk frontend
+        // Bedakan antara reservasi milik sendiri vs orang lain
         return {
           ...seat,
-          status: 'booked', // Ubah dari 'reserved'/'my_reservation' jadi 'booked'
+          status: reservationInfo.isMyReservation ? 'my_reservation' : 'reserved',
           expiredAt: reservationInfo.expiredAt
         };
       }
