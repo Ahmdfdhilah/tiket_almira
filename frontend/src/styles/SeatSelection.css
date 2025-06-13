@@ -1,0 +1,92 @@
+.seat {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid;
+}
+
+/* ABU-ABU - Kursi Tersedia */
+.seat-available {
+  background-color: #9ca3af !important;
+  color: white !important;
+  border-color: #6b7280 !important;
+}
+
+.seat-available:hover {
+  background-color: #6b7280 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* HIJAU - Kursi Dipilih User */
+.seat-selected {
+  background-color: #10b981 !important;
+  color: white !important;
+  border-color: #059669 !important;
+}
+
+.seat-selected:hover {
+  background-color: #059669 !important;
+}
+
+/* MERAH - Kursi Tidak Tersedia */
+.seat-booked {
+  background-color: #ef4444 !important;
+  color: white !important;
+  border-color: #dc2626 !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+}
+
+.seat-booked:hover {
+  background-color: #ef4444 !important;
+  transform: none !important;
+}
+
+/* Bus layout styling */
+.bus-layout {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.driver-area {
+  background: linear-gradient;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 16px;
+  width: 100px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: calc(50% + 20px);
+}
+
+.seats-container {
+  background-color: #f9fafb;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .seat {
+    width: 35px;
+    height: 35px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seat {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+  }
+}
