@@ -32,7 +32,7 @@ const QuickSearchWidget = () => {
       
       <button
         onClick={handleViewSchedule}
-        className="w-full py-3 bg-pink-500] text-white font-bold rounded-lg hover:bg-pink-700 transition duration-300"
+        className="w-full py-3 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-700 transition duration-300"
       >
         Lihat Jadwal Lengkap
       </button>

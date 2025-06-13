@@ -216,7 +216,7 @@ const Register = ({ register, verifyOTP, resendOTP, isAuthenticated, loading, se
                 <div className="flex items-center justify-between mt-6">
                   <button
                     type="submit"
-                    className="px-6 py-2 text-white bg-pink-500] rounded-lg hover:bg-pink-900 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 text-white bg-pink-500 rounded-lg hover:bg-pink-900 w-full disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={submitting}
                   >
                     {submitting ? 'Mendaftar...' : 'Daftar'}
@@ -283,7 +283,7 @@ const Register = ({ register, verifyOTP, resendOTP, isAuthenticated, loading, se
                 <div className="flex items-center justify-between mt-6">
                   <button
                     type="submit"
-                    className="px-6 py-2 text-white bg-pink-500] rounded-lg hover:bg-pink-700 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 text-white bg-pink-500 rounded-lg hover:bg-pink-700 w-full disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={submitting || otp.length !== 6}
                   >
                     {submitting ? 'Memverifikasi...' : 'Verifikasi'}
