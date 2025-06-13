@@ -21,7 +21,10 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'https://nuniali.my.id',
+  credentials: true
+}));
 app.use(express.json());
 
 // Mount routes
