@@ -22,7 +22,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'https://nuniali.my.id',
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 app.use(express.json());
@@ -84,7 +84,7 @@ const server = app.listen(PORT, async () => {
   
   try {
     // Sinkronisasi model dengan database
-    await sequelize.sync({ alter: true });
+    // await sequelize.sync({ alter: true });
     console.log('Sinkronisasi database berhasil');
     
     // Start cleanup job
