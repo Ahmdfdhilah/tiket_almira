@@ -7,17 +7,20 @@ import Footer from '../components/layout/Footer';
 import Alert from '../components/layout/Alert';
 import Spinner from '../components/layout/Spinner';
 import { checkPaymentStatus } from '../redux/actions/paymentActions';
+import { getGroupedTicketById } from '../redux/actions/tiketActions';
 import { setAlert } from '../redux/actions/alertActions';
 import { formatCurrency } from '../utils/formatters';
 
 const PaymentFinishPage = ({
   checkPaymentStatus,
-  setAlert
+  setAlert,
+  getGroupedTicketById
 }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [paymentData, setPaymentData] = useState(null);
+  const [groupedTicketData, setGroupedTicketData] = useState(null);
   const [error, setError] = useState(null);
 
   // Extract parameters from URL
@@ -47,6 +50,16 @@ const PaymentFinishPage = ({
         
         if (result.success) {
           setPaymentData(result.data);
+          
+          // Also fetch grouped ticket data to show all tickets in the order
+          try {
+            const groupedResult = await getGroupedTicketById(ticketId);
+            if (groupedResult) {
+              setGroupedTicketData(groupedResult);
+            }
+          } catch (groupedErr) {
+            console.warn('Could not fetch grouped ticket data:', groupedErr);
+          }
           
           // Show appropriate message based on status
           if (transactionStatus === 'settlement' || transactionStatus === 'capture') {
@@ -212,48 +225,93 @@ const PaymentFinishPage = ({
                 </div>
 
                 {/* Ticket Details */}
-                {paymentData.ticket && (
+                {(groupedTicketData || paymentData.ticket) && (
                   <div className="border-t pt-6">
                     <h3 className="font-bold text-lg mb-4">Detail Tiket</h3>
                     
-                    <div className="space-y-3 mb-6">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Nomor Tiket:</span>
-                        <span className="font-semibold">TB-{paymentData.ticket.id}</span>
+                    {groupedTicketData && groupedTicketData.order ? (
+                      // Show grouped order details
+                      <div className="space-y-3 mb-6">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Nomor Pesanan:</span>
+                          <span className="font-semibold">{groupedTicketData.order.order_group_id}</span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Rute:</span>
+                          <span className="font-semibold">
+                            {groupedTicketData.route?.asal} → {groupedTicketData.route?.tujuan}
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Jumlah Tiket:</span>
+                          <span className="font-semibold">
+                            {groupedTicketData.order.total_tickets} tiket
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Kursi:</span>
+                          <span className="font-semibold">
+                            {Array.isArray(groupedTicketData.order.seats) ? 
+                              groupedTicketData.order.seats.join(', ') : 
+                              groupedTicketData.order.seats
+                            }
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Status Tiket:</span>
+                          <span className={`font-semibold ${
+                            groupedTicketData.tickets?.[0]?.status_tiket === 'confirmed' ? 'text-green-600' : 
+                            groupedTicketData.tickets?.[0]?.status_tiket === 'pending' ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {groupedTicketData.tickets?.[0]?.status_tiket || 'N/A'}
+                          </span>
+                        </div>
                       </div>
-                      
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Rute:</span>
-                        <span className="font-semibold">
-                          {paymentData.route?.asal} → {paymentData.route?.tujuan}
-                        </span>
+                    ) : (
+                      // Show single ticket details (fallback)
+                      <div className="space-y-3 mb-6">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Nomor Tiket:</span>
+                          <span className="font-semibold">TB-{paymentData.ticket.id}</span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Rute:</span>
+                          <span className="font-semibold">
+                            {paymentData.route?.asal} → {paymentData.route?.tujuan}
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Kursi:</span>
+                          <span className="font-semibold">
+                            {paymentData.ticket.nomor_kursi}
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Status Tiket:</span>
+                          <span className={`font-semibold ${
+                            paymentData.ticket.status === 'confirmed' ? 'text-green-600' : 
+                            paymentData.ticket.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {paymentData.ticket.status}
+                          </span>
+                        </div>
                       </div>
-                      
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Kursi:</span>
-                        <span className="font-semibold">
-                          {paymentData.ticket.nomor_kursi}
-                        </span>
-                      </div>
-                      
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Status Tiket:</span>
-                        <span className={`font-semibold ${
-                          paymentData.ticket.status === 'confirmed' ? 'text-green-600' : 
-                          paymentData.ticket.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
-                        }`}>
-                          {paymentData.ticket.status}
-                        </span>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
                 {/* Actions */}
                 <div className="border-t pt-6 flex flex-col sm:flex-row gap-3">
-                  {paymentData?.ticket?.id && (
+                  {(groupedTicketData?.order?.master_ticket_id || paymentData?.ticket?.id) && (
                     <Link
-                      to={`/ticket/${paymentData.ticket.id}`}
+                      to={`/ticket/${groupedTicketData?.order?.master_ticket_id || paymentData.ticket.id}`}
                       className="flex-1 px-4 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition"
                     >
                       Lihat Detail Tiket
@@ -287,10 +345,12 @@ const PaymentFinishPage = ({
 
 PaymentFinishPage.propTypes = {
   checkPaymentStatus: PropTypes.func.isRequired,
-  setAlert: PropTypes.func.isRequired
+  setAlert: PropTypes.func.isRequired,
+  getGroupedTicketById: PropTypes.func.isRequired
 };
 
 export default connect(null, {
   checkPaymentStatus,
-  setAlert
+  setAlert,
+  getGroupedTicketById
 })(PaymentFinishPage);

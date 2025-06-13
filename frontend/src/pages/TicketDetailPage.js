@@ -32,8 +32,12 @@ const TicketDetailPage = ({
 
   // Helper function to safely access route data
   const getRouteData = (ticketData) => {
-    // Try different possible property names from backend
-    return ticketData?.rute || ticketData?.Rute || ticketData?.route || {};
+    // Handle grouped order structure
+    if (ticketData?.route) {
+      return ticketData.route;
+    }
+    // Fallback to individual ticket structure
+    return ticketData?.rute || ticketData?.Rute || {};
   };
 
   // Helper function to safely access user data  
@@ -43,7 +47,17 @@ const TicketDetailPage = ({
 
   // Helper function to safely access payment data
   const getPaymentData = (ticketData) => {
-    return ticketData?.pembayaran || ticketData?.Pembayaran || {};
+    return ticketData?.payment || ticketData?.pembayaran || ticketData?.Pembayaran || {};
+  };
+
+  // Helper function to get order/ticket data
+  const getOrderData = (ticketData) => {
+    return ticketData?.order || null;
+  };
+
+  // Helper function to get tickets array for grouped orders
+  const getTicketsData = (ticketData) => {
+    return ticketData?.tickets || [];
   };
 
   const handlePrintTicket = () => {
@@ -130,10 +144,15 @@ const TicketDetailPage = ({
   }
 
   // Safely extract data using helper functions
+  const orderData = getOrderData(ticket);
+  const ticketsData = getTicketsData(ticket);
   const routeData = getRouteData(ticket);
   const userData = getUserData(ticket);
   const paymentData = getPaymentData(ticket);
-  const status = formatStatus(ticket.status_tiket);
+  
+  // For grouped orders, use the first ticket's status, for individual tickets use ticket status
+  const mainTicket = ticketsData.length > 0 ? ticketsData[0] : ticket;
+  const status = formatStatus(mainTicket?.status_tiket || ticket?.status_tiket);
 
   // Check if we have minimum required data
   if (!routeData.asal || !routeData.tujuan) {
@@ -187,8 +206,17 @@ const TicketDetailPage = ({
                   </p>
                 </div>
                 <div className="mt-4 md:mt-0">
-                  <p className="text-gray-600 text-sm">Nomor Tiket</p>
-                  <p className="font-semibold">TB-{ticket.id_tiket}</p>
+                  <p className="text-gray-600 text-sm">
+                    {orderData ? 'Nomor Pesanan' : 'Nomor Tiket'}
+                  </p>
+                  <p className="font-semibold">
+                    {orderData ? orderData.order_group_id : `TB-${ticket.id_tiket}`}
+                  </p>
+                  {orderData && (
+                    <p className="text-sm text-gray-500">
+                      {orderData.total_tickets} tiket dalam pesanan
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -237,7 +265,20 @@ const TicketDetailPage = ({
                     <div className="flex border-b pb-3">
                       <div className="w-1/3 text-gray-600">Nomor Kursi</div>
                       <div className="w-2/3 font-semibold">
-                        {Array.isArray(ticket.nomor_kursi) ? (
+                        {orderData ? (
+                          // Show seats from order data for grouped tickets
+                          <div className="flex flex-wrap gap-2">
+                            {(Array.isArray(orderData.seats) ? orderData.seats : [orderData.seats]).map((seat, index) => (
+                              <span
+                                key={index}
+                                className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium"
+                              >
+                                {seat}
+                              </span>
+                            ))}
+                          </div>
+                        ) : Array.isArray(ticket.nomor_kursi) ? (
+                          // Show seats from individual ticket data
                           <div className="flex flex-wrap gap-2">
                             {ticket.nomor_kursi.map((seat, index) => (
                               <span
@@ -251,9 +292,9 @@ const TicketDetailPage = ({
                         ) : (
                           ticket.nomor_kursi || 'N/A'
                         )}
-                        {ticket.ticket_count > 1 && (
+                        {(orderData?.total_tickets > 1 || ticket.ticket_count > 1) && (
                           <div className="text-xs text-gray-500 mt-1">
-                            {ticket.ticket_count} kursi dalam 1 pemesanan
+                            {orderData?.total_tickets || ticket.ticket_count} kursi dalam 1 pemesanan
                           </div>
                         )}
                       </div>
@@ -320,7 +361,7 @@ const TicketDetailPage = ({
                     <div className="flex">
                       <div className="w-1/3 text-gray-600">Total Bayar</div>
                       <div className="w-2/3 font-bold text-lg">
-                        {formatCurrency(ticket.total_bayar || 0)}
+                        {formatCurrency(orderData?.total_amount || ticket.total_bayar || 0)}
                       </div>
                     </div>
                   </div>
@@ -329,7 +370,7 @@ const TicketDetailPage = ({
 
               {/* Actions */}
               <div className="border-t pt-6 flex flex-wrap justify-end gap-3">
-                {ticket.status_tiket === 'pending' && (
+                {mainTicket?.status_tiket === 'pending' && (
                   <button
                     onClick={handlePayNow}
                     disabled={paymentLoading}
@@ -346,7 +387,7 @@ const TicketDetailPage = ({
                   </button>
                 )}
 
-                {ticket.status_tiket === 'confirmed' && (
+                {mainTicket?.status_tiket === 'confirmed' && (
                   <button
                     onClick={handlePrintTicket}
                     className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
@@ -355,8 +396,8 @@ const TicketDetailPage = ({
                   </button>
                 )}
 
-                {(ticket.status_tiket === 'confirmed' || ticket.status_tiket === 'pending') && 
-                 !['cancelled', 'expired', 'completed'].includes(ticket.status_tiket) && (
+                {(mainTicket?.status_tiket === 'confirmed' || mainTicket?.status_tiket === 'pending') && 
+                 !['cancelled', 'expired', 'completed'].includes(mainTicket?.status_tiket) && (
                   <button
                     onClick={() => setShowCancelModal(true)}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
@@ -389,7 +430,9 @@ const TicketDetailPage = ({
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold mb-4">Batalkan Tiket</h2>
             <p className="mb-6 text-gray-700">
-              Apakah Anda yakin ingin membatalkan tiket ini? Pembatalan tiket tidak dapat dibatalkan.
+              Apakah Anda yakin ingin membatalkan {orderData ? 'pesanan' : 'tiket'} ini? 
+              {orderData && `Semua ${orderData.total_tickets} tiket dalam pesanan akan dibatalkan. `}
+              Pembatalan tidak dapat dibatalkan.
             </p>
             <div className="flex justify-end space-x-3">
               <button

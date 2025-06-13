@@ -19,7 +19,12 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
 
   // Helper functions to safely access nested data
   const getRouteData = (ticketData) => {
-    return ticketData?.rute || ticketData?.Rute || ticketData?.route || {};
+    // Handle grouped order structure
+    if (ticketData?.route) {
+      return ticketData.route;
+    }
+    // Fallback to individual ticket structure
+    return ticketData?.rute || ticketData?.Rute || {};
   };
 
   const getUserData = (ticketData) => {
@@ -28,7 +33,17 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
 
   const getBusData = (ticketData) => {
     const route = getRouteData(ticketData);
-    return route?.Bus || { nama_bus: route?.nama_bus || 'Bus Tidak Diketahui' };
+    return route?.bus || route?.Bus || { nama_bus: route?.nama_bus || 'Bus Tidak Diketahui' };
+  };
+
+  // Helper function to get order/ticket data
+  const getOrderData = (ticketData) => {
+    return ticketData?.order || null;
+  };
+
+  // Helper function to get tickets array for grouped orders
+  const getTicketsData = (ticketData) => {
+    return ticketData?.tickets || [];
   };
   
   const handlePrint = useReactToPrint({
@@ -70,9 +85,14 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
   }
 
   // Extract data safely
+  const orderData = getOrderData(ticket);
+  const ticketsData = getTicketsData(ticket);
   const routeData = getRouteData(ticket);
   const userData = getUserData(ticket);
   const busData = getBusData(ticket);
+  
+  // For grouped orders, use the first ticket's data, for individual tickets use ticket data
+  const mainTicket = ticketsData.length > 0 ? ticketsData[0] : ticket;
 
   // Check if we have minimum required data
   if (!routeData.asal || !routeData.tujuan || !userData.username) {
@@ -87,11 +107,12 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
   
   // Generate QR code data
   const qrData = JSON.stringify({
-    id: ticket.id_tiket || 'N/A',
+    id: orderData?.order_group_id || mainTicket?.id_tiket || ticket?.id_tiket || 'N/A',
     name: userData.username || 'N/A',
     route: `${routeData.asal || 'N/A'}-${routeData.tujuan || 'N/A'}`,
     date: routeData.waktu_berangkat || new Date(),
-    seat: ticket.nomor_kursi || 'N/A'
+    seat: orderData?.seats || mainTicket?.nomor_kursi || ticket?.nomor_kursi || 'N/A',
+    tickets: orderData?.total_tickets || 1
   });
   
   // Format date for barcode
@@ -100,7 +121,7 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
     : new Date().toISOString().split('T')[0].replace(/-/g, '');
   
   // Create barcode data
-  const barcodeData = `TB${ticket.id_tiket || '000'}${barcodeDate}`;
+  const barcodeData = `TB${mainTicket?.id_tiket || ticket?.id_tiket || '000'}${barcodeDate}`;
   
   return (
     <div className="relative">
@@ -159,7 +180,13 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
                 <tr>
                   <td className="py-2 text-gray-600">Nomor Kursi</td>
                   <td className="py-2 font-semibold">
-                    {Array.isArray(ticket.nomor_kursi) ? ticket.nomor_kursi.join(', ') : (ticket.nomor_kursi || 'N/A')}
+                    {orderData ? (
+                      Array.isArray(orderData.seats) ? orderData.seats.join(', ') : (orderData.seats || 'N/A')
+                    ) : (
+                      Array.isArray(mainTicket?.nomor_kursi || ticket?.nomor_kursi) ? 
+                        (mainTicket?.nomor_kursi || ticket?.nomor_kursi).join(', ') : 
+                        (mainTicket?.nomor_kursi || ticket?.nomor_kursi || 'N/A')
+                    )}
                   </td>
                 </tr>
               </tbody>
@@ -183,19 +210,27 @@ const PrintTiket = ({ getGroupedTicketById, ticket, loading, error }) => {
                   <td className="py-2 font-semibold">{userData.no_telepon || 'N/A'}</td>
                 </tr>
                 <tr>
-                  <td className="py-2 text-gray-600">No. Tiket</td>
-                  <td className="py-2 font-semibold">TB-{ticket.id_tiket || '000'}</td>
+                  <td className="py-2 text-gray-600">{orderData ? 'No. Pesanan' : 'No. Tiket'}</td>
+                  <td className="py-2 font-semibold">
+                    {orderData ? orderData.order_group_id : `TB-${mainTicket?.id_tiket || ticket?.id_tiket || '000'}`}
+                  </td>
                 </tr>
+                {orderData && (
+                  <tr>
+                    <td className="py-2 text-gray-600">Jumlah Tiket</td>
+                    <td className="py-2 font-semibold">{orderData.total_tickets} tiket</td>
+                  </tr>
+                )}
                 <tr>
                   <td className="py-2 text-gray-600">Status</td>
                   <td className={`py-2 font-semibold ${
-                    ticket.status_tiket === 'confirmed' ? 'text-green-600' : 
-                    ticket.status_tiket === 'pending' ? 'text-yellow-600' : 
+                    mainTicket?.status_tiket === 'confirmed' ? 'text-green-600' : 
+                    mainTicket?.status_tiket === 'pending' ? 'text-yellow-600' : 
                     'text-gray-600'
                   }`}>
-                    {ticket.status_tiket === 'confirmed' ? 'Dikonfirmasi' : 
-                     ticket.status_tiket === 'pending' ? 'Menunggu Pembayaran' : 
-                     ticket.status_tiket || 'N/A'}
+                    {mainTicket?.status_tiket === 'confirmed' ? 'Dikonfirmasi' : 
+                     mainTicket?.status_tiket === 'pending' ? 'Menunggu Pembayaran' : 
+                     mainTicket?.status_tiket || ticket?.status_tiket || 'N/A'}
                   </td>
                 </tr>
               </tbody>

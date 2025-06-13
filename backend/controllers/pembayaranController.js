@@ -75,11 +75,32 @@ exports.createPaymentToken = async (req, res) => {
     // Generate order ID
     const orderId = `ORDER-${ticket.id_tiket}-${Date.now()}`;
 
+    // PERBAIKAN: Get total amount for order (support grouped tickets)
+    let totalAmount = parseInt(ticket.total_bayar);
+    let orderSeats = [ticket.nomor_kursi];
+    
+    if (ticket.order_group_id && ticket.is_master_ticket && ticket.order_total_amount) {
+      // NEW SYSTEM: Use order total amount for grouped tickets
+      totalAmount = parseInt(ticket.order_total_amount);
+      
+      // Get all seats in the order
+      const allTicketsInOrder = await Tiket.findAll({
+        where: {
+          order_group_id: ticket.order_group_id,
+          id_user: req.user.id_user
+        },
+        attributes: ['nomor_kursi'],
+        order: [['nomor_kursi', 'ASC']]
+      });
+      
+      orderSeats = allTicketsInOrder.map(t => t.nomor_kursi);
+    }
+
     // Prepare payment parameter dengan pembatasan metode pembayaran
     const parameter = {
       transaction_details: {
         order_id: orderId,
-        gross_amount: parseInt(ticket.total_bayar)
+        gross_amount: totalAmount
       },
       // HAPUS credit_card untuk disable kartu kredit
       // credit_card: {
@@ -90,12 +111,22 @@ exports.createPaymentToken = async (req, res) => {
         email: ticket.User.email,
         phone: ticket.User.no_telepon || '08123456789'
       },
-      item_details: [
+      item_details: orderSeats.length > 1 ? [
+        {
+          id: `ORDER-${ticket.order_group_id || ticket.id_tiket}`,
+          price: totalAmount,
+          quantity: 1,
+          name: `${orderSeats.length} Tiket Bus ${ticket.Rute.asal} → ${ticket.Rute.tujuan} (Kursi: ${orderSeats.join(', ')})`,
+          brand: 'Almira Bus',
+          category: 'Transportation',
+          merchant_name: 'Tiket Bus Almira'
+        }
+      ] : [
         {
           id: `TICKET-${ticket.id_tiket}`,
-          price: parseInt(ticket.total_bayar),
+          price: totalAmount,
           quantity: 1,
-          name: `Tiket Bus ${ticket.Rute.asal} → ${ticket.Rute.tujuan}`,
+          name: `Tiket Bus ${ticket.Rute.asal} → ${ticket.Rute.tujuan} (Kursi: ${orderSeats[0]})`,
           brand: 'Almira Bus',
           category: 'Transportation',
           merchant_name: 'Tiket Bus Almira'
@@ -114,7 +145,7 @@ exports.createPaymentToken = async (req, res) => {
         pending: `${process.env.FRONTEND_URL}/payment/pending`
       },
       notification_url: `${process.env.NGROK_URL || process.env.BACKEND_URL || 'http://localhost:5000'}/api/pembayaran/notification`, // IMPORTANT: nanti di server tak perlu NGROK
-      custom_field1: `SEAT-${ticket.nomor_kursi}`,
+      custom_field1: `SEATS-${orderSeats.join(',')}`,
       custom_field2: ticket.Rute.Bus.nama_bus,
       custom_field3: new Date(ticket.Rute.waktu_berangkat).toISOString()
     };
@@ -153,10 +184,16 @@ exports.createPaymentToken = async (req, res) => {
         snap_token: snapTransaction.token,
         redirect_url: snapTransaction.redirect_url,
         order_id: orderId,
-        amount: ticket.total_bayar,
+        amount: totalAmount,
+        order: {
+          order_group_id: ticket.order_group_id || `SINGLE-${ticket.id_tiket}`,
+          total_tickets: orderSeats.length,
+          seats: orderSeats,
+          master_ticket_id: ticket.id_tiket
+        },
         ticket: {
           id: ticket.id_tiket,
-          seat: ticket.nomor_kursi,
+          seat: orderSeats.length > 1 ? orderSeats.join(', ') : orderSeats[0],
           route: `${ticket.Rute.asal} → ${ticket.Rute.tujuan}`,
           departure: ticket.Rute.waktu_berangkat,
           bus: ticket.Rute.Bus.nama_bus
@@ -279,18 +316,39 @@ exports.handleNotification = async (req, res) => {
       }
       await payment.save({ transaction });
 
-      // Update ticket status
-      const ticket = payment.Tiket;
-      const oldTicketStatus = ticket.status_tiket;
-      ticket.status_tiket = newTicketStatus;
-      await ticket.save({ transaction });
+      // Update ticket status - HANDLE GROUPED TICKETS
+      const masterTicket = payment.Tiket;
+      const oldTicketStatus = masterTicket.status_tiket;
+      
+      if (masterTicket.order_group_id) {
+        // NEW SYSTEM: Update all tickets in the order group
+        const allTicketsInOrder = await Tiket.findAll({
+          where: {
+            order_group_id: masterTicket.order_group_id,
+            id_user: masterTicket.id_user
+          },
+          transaction
+        });
+        
+        // Update all tickets in the order
+        for (const ticket of allTicketsInOrder) {
+          ticket.status_tiket = newTicketStatus;
+          await ticket.save({ transaction });
+        }
+        
+        console.log(`Updated ${allTicketsInOrder.length} tickets in order group ${masterTicket.order_group_id} to status: ${newTicketStatus}`);
+      } else {
+        // LEGACY SYSTEM: Update single ticket
+        masterTicket.status_tiket = newTicketStatus;
+        await masterTicket.save({ transaction });
+      }
       
       // Commit transaction
       await transaction.commit();
     
       // Log status changes
       webhookLogger.logPaymentStatusChange(
-        ticket.id_tiket,
+        masterTicket.id_tiket,
         orderId,
         oldPaymentStatus,
         newPaymentStatus,
@@ -302,7 +360,7 @@ exports.handleNotification = async (req, res) => {
       // Log successful payment completion
       if (newPaymentStatus === 'completed') {
         webhookLogger.logPaymentCompleted(
-          ticket.id_tiket,
+          masterTicket.id_tiket,
           orderId,
           notification.gross_amount,
           notification.payment_type
@@ -314,25 +372,41 @@ exports.handleNotification = async (req, res) => {
         try {
           const { sendPaymentConfirmation } = require('../utils/sendEmail');
           
+          // Get all seats for email notification
+          let allSeats = [masterTicket.nomor_kursi];
+          if (masterTicket.order_group_id) {
+            const allTicketsInOrder = await Tiket.findAll({
+              where: {
+                order_group_id: masterTicket.order_group_id,
+                id_user: masterTicket.id_user
+              },
+              attributes: ['nomor_kursi'],
+              order: [['nomor_kursi', 'ASC']]
+            });
+            allSeats = allTicketsInOrder.map(t => t.nomor_kursi);
+          }
+          
           const ticketData = {
-            email: ticket.User.email,
-            username: ticket.User.username,
+            email: masterTicket.User.email,
+            username: masterTicket.User.username,
             orderId: orderId,
-            ticketId: ticket.id_tiket,
-            seatNumber: ticket.nomor_kursi,
+            ticketId: masterTicket.id_tiket,
+            seatNumber: allSeats.length > 1 ? allSeats.join(', ') : allSeats[0],
+            totalTickets: allSeats.length,
+            orderGroupId: masterTicket.order_group_id,
             route: {
-              asal: ticket.Rute.asal,
-              tujuan: ticket.Rute.tujuan
+              asal: masterTicket.Rute.asal,
+              tujuan: masterTicket.Rute.tujuan
             },
-            departureTime: ticket.Rute.waktu_berangkat,
-            busName: ticket.Rute.Bus?.nama_bus || 'Bus Almira',
+            departureTime: masterTicket.Rute.waktu_berangkat,
+            busName: masterTicket.Rute.Bus?.nama_bus || 'Bus Almira',
             amount: parseFloat(notification.gross_amount),
             paymentMethod: notification.payment_type || 'Midtrans',
             paymentTime: new Date()
           };
           
           await sendPaymentConfirmation(ticketData);
-          console.log('✅ Payment confirmation email sent successfully to:', ticket.User.email);
+          console.log(`✅ Payment confirmation email sent successfully to: ${masterTicket.User.email} for ${allSeats.length} tickets`);
           
         } catch (emailError) {
           console.error('❌ Failed to send payment confirmation email:', emailError.message);

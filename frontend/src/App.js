@@ -140,6 +140,23 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          {/* Alternative routes for grouped tickets compatibility */}
+          <Route
+            path="/tiket/order/:id"
+            element={
+              <PrivateRoute>
+                <TicketDetailPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/tiket/print-order/:id"
+            element={
+              <PrivateRoute>
+                <PrintTiket />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

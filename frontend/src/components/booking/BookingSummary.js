@@ -522,54 +522,85 @@ const BookingSummary = ({
               </div>
             </div>
             
-            {/* Seat Info - CRITICAL FIX */}
+            {/* Order Summary - UPDATED untuk single order display */}
             <div className="border-b pb-4 mb-4">
-              <h3 className="font-semibold mb-2">Detail Kursi</h3>
+              <h3 className="font-semibold mb-3">Detail Order</h3>
               
-              <div className="flex flex-wrap gap-2 mb-3">
-                {seatCount > 0 ? (
-                  finalSeats.map((seat, index) => (
-                    <span 
-                      key={index}
-                      className={`inline-block px-2 py-1 rounded text-sm font-medium ${
-                        seatConflictError && seatConflictError.conflictSeats.includes(seat)
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}
-                    >
-                      {seat}
-                      {seatConflictError && seatConflictError.conflictSeats.includes(seat) && (
-                        <i className="fas fa-exclamation-triangle ml-1"></i>
-                      )}
-                    </span>
-                  ))
-                ) : (
-                  <div className="w-full">
-                    <span className="text-red-500 text-sm font-medium">⚠️ Tidak ada kursi dipilih</span>
-                    <div className="mt-2">
-                      <button
-                        onClick={() => navigate(`/booking/${routeId}`)}
-                        className="text-blue-600 hover:text-blue-800 text-sm underline"
-                      >
-                        Pilih kursi sekarang
-                      </button>
+              {/* Order Header */}
+              {seatCount > 1 && (
+                <div className="bg-blue-50 p-3 rounded-lg mb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <i className="fas fa-ticket-alt text-blue-600 mr-2"></i>
+                      <span className="font-medium text-blue-800">
+                        Order {seatCount} Tiket
+                      </span>
                     </div>
+                    <span className="text-blue-600 text-sm font-medium">
+                      Single Payment
+                    </span>
                   </div>
-                )}
-              </div>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Satu pembayaran untuk semua tiket dalam order ini
+                  </p>
+                </div>
+              )}
               
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Jumlah Kursi:</span>
-                  <span className="font-medium">{seatCount}</span>
+              {/* Seat Display */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-600 text-sm">Kursi yang dipilih:</span>
+                  <span className="text-sm font-medium">{seatCount} kursi</span>
                 </div>
                 
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Harga per Kursi:</span>
-                  <span className="font-medium">
-                    {formatCurrency(basePrice)}
-                  </span>
+                <div className="flex flex-wrap gap-2">
+                  {seatCount > 0 ? (
+                    finalSeats.map((seat, index) => (
+                      <span 
+                        key={index}
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                          seatConflictError && seatConflictError.conflictSeats.includes(seat)
+                            ? 'bg-red-100 text-red-800 border border-red-200'
+                            : 'bg-green-100 text-green-800 border border-green-200'
+                        }`}
+                      >
+                        <i className="fas fa-check-circle mr-1"></i>
+                        Kursi {seat}
+                        {seatConflictError && seatConflictError.conflictSeats.includes(seat) && (
+                          <i className="fas fa-exclamation-triangle ml-1"></i>
+                        )}
+                      </span>
+                    ))
+                  ) : (
+                    <div className="w-full bg-red-50 p-3 rounded-lg border border-red-200">
+                      <div className="flex items-center">
+                        <i className="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                        <span className="text-red-700 text-sm font-medium">Tidak ada kursi dipilih</span>
+                      </div>
+                      <button
+                        onClick={() => navigate(`/booking/${routeId}`)}
+                        className="mt-2 text-blue-600 hover:text-blue-800 text-sm underline"
+                      >
+                        Pilih kursi sekarang →
+                      </button>
+                    </div>
+                  )}
                 </div>
+              </div>
+              
+              {/* Pricing Info */}
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Harga per tiket:</span>
+                  <span className="font-medium">{formatCurrency(basePrice)}</span>
+                </div>
+                
+                {seatCount > 1 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Jumlah tiket:</span>
+                    <span className="font-medium">{seatCount} tiket</span>
+                  </div>
+                )}
               </div>
             </div>
             
