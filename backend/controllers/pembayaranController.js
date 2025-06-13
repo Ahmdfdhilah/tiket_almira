@@ -144,7 +144,7 @@ exports.createPaymentToken = async (req, res) => {
         error: `${process.env.FRONTEND_URL}/payment/error`,
         pending: `${process.env.FRONTEND_URL}/payment/pending`
       },
-      notification_url: `${process.env.NGROK_URL || process.env.BACKEND_URL || 'http://localhost:5000'}/api/pembayaran/notification`, // IMPORTANT: nanti di server tak perlu NGROK
+      notification_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/pembayaran/notification`, // IMPORTANT: nanti di server tak perlu NGROK
       custom_field1: `SEATS-${orderSeats.join(',')}`,
       custom_field2: ticket.Rute.Bus.nama_bus,
       custom_field3: new Date(ticket.Rute.waktu_berangkat).toISOString()
