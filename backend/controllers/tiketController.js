@@ -245,6 +245,15 @@ exports.getOrderById = async (req, res) => {
     const totalOrderAmount = masterTicket.order_total_amount || 
       allTicketsInOrder.reduce((sum, ticket) => sum + parseFloat(ticket.total_bayar || 0), 0);
 
+    // Determine overall order status
+    const ticketStatuses = allTicketsInOrder.map(t => t.status_tiket);
+    const orderStatus = (() => {
+      if (ticketStatuses.every(status => status === 'confirmed')) return 'confirmed';
+      if (ticketStatuses.every(status => status === 'cancelled')) return 'cancelled';
+      if (ticketStatuses.some(status => status === 'pending')) return 'pending';
+      return masterTicket.status_tiket; // fallback to master ticket status
+    })();
+
     // Create order response
     const orderResponse = {
       // ORDER INFO
@@ -289,7 +298,12 @@ exports.getOrderById = async (req, res) => {
         id_user: masterTicket.User.id_user,
         username: masterTicket.User.username,
         email: masterTicket.User.email
-      } : null
+      } : null,
+      
+      // ORDER STATUS
+      status_tiket: orderStatus,
+      tanggal_pemesanan: masterTicket.tanggal_pemesanan,
+      batas_pembayaran: masterTicket.batas_pembayaran
     };
 
     res.status(200).json({
