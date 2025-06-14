@@ -125,32 +125,32 @@ const AdminTicketList = ({
   });
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Kelola Tiket</h2>
-        <div className="flex items-center space-x-3">
-          <span className="bg-pink-100 text-pink-800 text-sm px-3 py-1 rounded-full">
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+        <h2 className="text-lg sm:text-xl font-bold">Kelola Tiket</h2>
+        <div className="flex items-center">
+          <span className="bg-pink-100 text-pink-800 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full">
             Total: {tickets ? tickets.length : 0}
           </span>
         </div>
       </div>
 
       {/* Search and Filter */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
           <input
             type="text"
             placeholder="Cari ID tiket, penumpang, atau rute..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">Semua Status</option>
             <option value="pending">Pending</option>
@@ -161,8 +161,8 @@ const AdminTicketList = ({
         </div>
       </div>
 
-      {/* Tickets Table */}
-      <div className="overflow-x-auto">
+      {/* Tickets Table - Desktop */}
+      <div className="hidden lg:block overflow-x-auto">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-50">
             <tr>
@@ -273,15 +273,114 @@ const AdminTicketList = ({
         </table>
       </div>
 
+      {/* Tickets Cards - Mobile */}
+      <div className="lg:hidden space-y-3">
+        {filteredTickets.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <div className="text-4xl mb-2">🎫</div>
+            <p className="text-sm">Tidak ada tiket yang ditemukan</p>
+          </div>
+        ) : (
+          filteredTickets.map((ticket) => {
+            const status = formatStatus(ticket.status_tiket);
+            return (
+              <div key={ticket.id_tiket} className="bg-gray-50 rounded-lg p-4 border">
+                {/* Ticket Header */}
+                <div className="flex items-start space-x-3 mb-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 bg-purple-600">
+                    <i className="fas fa-ticket-alt text-sm"></i>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        ID: {ticket.id_tiket}
+                      </h3>
+                      <button
+                        onClick={() => handleStatusClick(ticket)}
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${status.colorClass} hover:opacity-80 transition-opacity cursor-pointer`}
+                      >
+                        {status.text}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 truncate">
+                      {ticket.User?.username || 'Unknown User'}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {ticket.User?.email || 'No Email'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Route Info */}
+                <div className="mb-3">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">
+                    {ticket.Rute?.asal || 'N/A'} → {ticket.Rute?.tujuan || 'N/A'}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3 text-xs text-gray-500">
+                    <div>
+                      <p>Tanggal:</p>
+                      <p className="font-medium text-gray-700">
+                        {ticket.Rute?.waktu_berangkat ? formatDate(ticket.Rute.waktu_berangkat) : 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p>Waktu:</p>
+                      <p className="font-medium text-gray-700">
+                        {ticket.Rute?.waktu_berangkat ? formatTime(ticket.Rute.waktu_berangkat) : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
+                  <div>
+                    <p className="text-gray-500">Kursi:</p>
+                    <p className="font-semibold text-gray-900">{ticket.nomor_kursi}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Harga:</p>
+                    <p className="font-semibold text-pink-600">{formatCurrency(ticket.total_bayar)}</p>
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <p className="text-xs text-gray-500">Bus: {ticket.Rute?.Bus?.nama_bus || 'N/A'}</p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleStatusClick(ticket)}
+                    className="flex-1 text-pink-600 hover:text-pink-900 text-xs px-3 py-2 rounded border border-pink-600 hover:bg-blue-50 transition-colors text-center"
+                  >
+                    <i className="fas fa-edit mr-1"></i>
+                    Status
+                  </button>
+                  
+                  <button
+                    onClick={() => handleDeleteClick(ticket)}
+                    className="flex-1 text-red-600 hover:text-red-900 text-xs px-3 py-2 rounded border border-red-600 hover:bg-red-50 transition-colors text-center"
+                  >
+                    <i className="fas fa-trash mr-1"></i>
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
       {/* Status Update Modal */}
       {showStatusModal && ticketToUpdate && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Update Status Tiket</h3>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">Update Status Tiket</h3>
               <button
                 onClick={() => setShowStatusModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 p-1"
               >
                 <i className="fas fa-times"></i>
               </button>
@@ -303,7 +402,7 @@ const AdminTicketList = ({
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {statusOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -313,16 +412,16 @@ const AdminTicketList = ({
               </select>
             </div>
             
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 onClick={() => setShowStatusModal(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors text-sm"
               >
                 Batal
               </button>
               <button
                 onClick={handleStatusSubmit}
-                className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors"
+                className="w-full sm:w-auto px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-colors text-sm"
               >
                 <i className="fas fa-save mr-2"></i>
                 Update Status
@@ -335,30 +434,30 @@ const AdminTicketList = ({
       {/* Delete Confirmation Modal */}
       {showDeleteModal && ticketToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-4 sm:p-6">
             <div className="flex items-center mb-4">
               <div className="bg-red-100 rounded-full p-2 mr-3">
                 <i className="fas fa-exclamation-triangle text-red-600"></i>
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Konfirmasi Hapus</h3>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">Konfirmasi Hapus</h3>
             </div>
             
-            <p className="text-gray-700 mb-6">
+            <p className="text-gray-700 mb-6 text-sm sm:text-base">
               Apakah Anda yakin ingin menghapus tiket <strong>ID: {ticketToDelete.id_tiket}</strong> 
               milik <strong>{ticketToDelete.User?.username}</strong>? 
               Tindakan ini tidak dapat dibatalkan.
             </p>
             
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors text-sm"
               >
                 Batal
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
               >
                 <i className="fas fa-trash mr-2"></i>
                 Hapus

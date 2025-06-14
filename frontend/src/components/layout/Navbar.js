@@ -156,14 +156,6 @@ const Navbar = ({ auth = { isAuthenticated: false, loading: true, user: null }, 
                 </Link>
               )}
               
-              <Link 
-                to="/about" 
-                className="block text-white hover:bg-pink-500 px-3 py-2 rounded-md transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Tentang Kami
-              </Link>
-              
               {auth.isAuthenticated ? (
                 <>
                   <div className="border-t border-pink-600 my-2"></div>
