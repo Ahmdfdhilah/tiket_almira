@@ -1,4 +1,4 @@
-const { Tiket, User, Rute, Pembayaran, Bus, ReservasiSementara } = require('../models');
+const { Tiket, User, Rute, Pembayaran, Bus, ReservasiSementara, sequelize } = require('../models');
 const { isBookingAllowed } = require('../utils/cleanupJob');
 const { Op } = require('sequelize');
 
@@ -608,14 +608,44 @@ exports.cancelTicket = async (req, res) => {
       });
     }
 
-    // Update ticket status
-    ticket.status_tiket = 'cancelled';
-    await ticket.save();
+    // Use transaction to ensure all updates are atomic
+    const transaction = await sequelize.transaction();
 
-    // Update payment status if exists
-    if (ticket.Pembayaran) {
-      ticket.Pembayaran.status = 'cancelled';
-      await ticket.Pembayaran.save();
+    try {
+      // Update ticket status - HANDLE GROUPED TICKETS
+      if (ticket.order_group_id) {
+        // NEW SYSTEM: Cancel all tickets in the order group
+        const updateResult = await Tiket.update(
+          { 
+            status_tiket: 'cancelled' 
+          },
+          {
+            where: {
+              order_group_id: ticket.order_group_id
+            },
+            transaction
+          }
+        );
+        
+        console.log(`Cancelled ${updateResult[0]} tickets in order group ${ticket.order_group_id}`);
+      } else {
+        // LEGACY SYSTEM: Cancel single ticket
+        ticket.status_tiket = 'cancelled';
+        await ticket.save({ transaction });
+      }
+
+      // Update payment status if exists
+      if (ticket.Pembayaran) {
+        ticket.Pembayaran.status = 'cancelled';
+        await ticket.Pembayaran.save({ transaction });
+      }
+
+      // Commit transaction
+      await transaction.commit();
+    } catch (error) {
+      // Rollback transaction on error
+      await transaction.rollback();
+      throw error;
     }
 
     res.status(200).json({

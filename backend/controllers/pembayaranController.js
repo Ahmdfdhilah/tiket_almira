@@ -322,21 +322,26 @@ exports.handleNotification = async (req, res) => {
       
       if (masterTicket.order_group_id) {
         // NEW SYSTEM: Update all tickets in the order group
-        const allTicketsInOrder = await Tiket.findAll({
-          where: {
-            order_group_id: masterTicket.order_group_id,
-            id_user: masterTicket.id_user
+        const updateResult = await Tiket.update(
+          { 
+            status_tiket: newTicketStatus 
           },
-          transaction
-        });
+          {
+            where: {
+              order_group_id: masterTicket.order_group_id
+            },
+            transaction
+          }
+        );
         
-        // Update all tickets in the order
-        for (const ticket of allTicketsInOrder) {
-          ticket.status_tiket = newTicketStatus;
-          await ticket.save({ transaction });
+        console.log(`Updated ${updateResult[0]} tickets in order group ${masterTicket.order_group_id} to status: ${newTicketStatus}`);
+        
+        // Also update the master ticket to ensure it's updated
+        if (updateResult[0] === 0) {
+          console.log(`Warning: No tickets were updated for order group ${masterTicket.order_group_id}, updating master ticket individually`);
+          masterTicket.status_tiket = newTicketStatus;
+          await masterTicket.save({ transaction });
         }
-        
-        console.log(`Updated ${allTicketsInOrder.length} tickets in order group ${masterTicket.order_group_id} to status: ${newTicketStatus}`);
       } else {
         // LEGACY SYSTEM: Update single ticket
         masterTicket.status_tiket = newTicketStatus;
