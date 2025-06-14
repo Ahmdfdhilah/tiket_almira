@@ -116,7 +116,7 @@ exports.createPaymentToken = async (req, res) => {
           id: `ORDER-${ticket.order_group_id || ticket.id_tiket}`,
           price: totalAmount,
           quantity: 1,
-          name: `${orderSeats.length} Tiket Bus ${ticket.Rute.asal} → ${ticket.Rute.tujuan} (Kursi: ${orderSeats.join(', ')})`,
+          name: `${orderSeats.length} Tiket ${ticket.Rute.asal}-${ticket.Rute.tujuan}`.substring(0, 50),
           brand: 'Almira Bus',
           category: 'Transportation',
           merchant_name: 'Tiket Bus Almira'
@@ -126,7 +126,7 @@ exports.createPaymentToken = async (req, res) => {
           id: `TICKET-${ticket.id_tiket}`,
           price: totalAmount,
           quantity: 1,
-          name: `Tiket Bus ${ticket.Rute.asal} → ${ticket.Rute.tujuan} (Kursi: ${orderSeats[0]})`,
+          name: `Tiket ${ticket.Rute.asal}-${ticket.Rute.tujuan} (${orderSeats[0]})`.substring(0, 50),
           brand: 'Almira Bus',
           category: 'Transportation',
           merchant_name: 'Tiket Bus Almira'
