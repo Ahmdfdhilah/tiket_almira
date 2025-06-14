@@ -154,10 +154,6 @@ const RouteList = ({ routes, loading, error, getRutes }) => {
                 <span className="mx-2">•</span>
                 <span>Kursi: <strong>{route.total_kursi || route.kursi_tersedia || 'N/A'}</strong></span>
               </div>
-              <button className="flex items-center text-gray-500 text-sm hover:text-gray-700">
-                <i className="fas fa-info-circle mr-2"></i>
-                Details
-              </button>
             </div>
           </div>
         </div>
