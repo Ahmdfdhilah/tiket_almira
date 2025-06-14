@@ -275,6 +275,9 @@ exports.getOrderById = async (req, res) => {
         tujuan: masterTicket.Rute.tujuan,
         waktu_berangkat: masterTicket.Rute.waktu_berangkat,
         harga: masterTicket.Rute.harga,
+        nama_bus: masterTicket.Rute.Bus ? masterTicket.Rute.Bus.nama_bus : 'Bus Tidak Diketahui',
+        total_kursi: masterTicket.Rute.Bus ? masterTicket.Rute.Bus.total_kursi : 0,
+        Bus: masterTicket.Rute.Bus,
         bus: masterTicket.Rute.Bus
       } : null,
       
