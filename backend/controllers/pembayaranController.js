@@ -54,8 +54,8 @@ exports.createPaymentToken = async (req, res) => {
       });
     }
 
-    // Check payment deadline
-    if (new Date() > ticket.batas_pembayaran) {
+    // Check payment deadline - ONLY for pending tickets
+    if (ticket.status_tiket === 'pending' && new Date() > ticket.batas_pembayaran) {
       // Update ticket status to expired
       ticket.status_tiket = 'expired';
       await ticket.save({ transaction });
