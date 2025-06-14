@@ -1,4 +1,5 @@
-const { Tiket, User, Rute, Pembayaran, Bus, ReservasiSementara, sequelize } = require('../models');
+const { Tiket, User, Rute, Pembayaran, Bus, ReservasiSementara } = require('../models');
+const { sequelize } = require('../config/db');
 const { isBookingAllowed } = require('../utils/cleanupJob');
 const { Op } = require('sequelize');
 
