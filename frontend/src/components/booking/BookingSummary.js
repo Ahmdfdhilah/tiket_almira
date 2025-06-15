@@ -43,19 +43,15 @@ const BookingSummary = ({
 
   // Helper function to extract seats - FIXED: Memoized to prevent re-renders
   const extractSeatsFromSources = useCallback(() => {
-    console.log('🔍 [BookingSummary] Extracting seats from all sources...');
-
     // Source 1: URL parameters (most immediate)
     const urlSeats = searchParams.get('seats');
     if (urlSeats) {
       const seats = urlSeats.split(',').map(s => s.trim()).filter(s => s);
-      console.log('✅ Found seats in URL:', seats);
       return seats;
     }
 
     // Source 2: Redux selectedSeats
     if (selectedSeats && selectedSeats.length > 0) {
-      console.log('✅ Found seats in Redux:', selectedSeats);
       return [...selectedSeats];
     }
 
@@ -64,7 +60,6 @@ const BookingSummary = ({
       const storedSeats = sessionStorage.getItem('selectedSeats');
       if (storedSeats) {
         const seats = JSON.parse(storedSeats);
-        console.log('✅ Found seats in sessionStorage:', seats);
         return seats;
       }
     } catch (error) {
@@ -75,18 +70,15 @@ const BookingSummary = ({
     if (summaryData?.nomor_kursi) {
       const seats = Array.isArray(summaryData.nomor_kursi) ?
         summaryData.nomor_kursi : [summaryData.nomor_kursi];
-      console.log('✅ Found seats in summaryData:', seats);
       return seats;
     }
 
     if (reservation?.nomor_kursi) {
       const seats = Array.isArray(reservation.nomor_kursi) ?
         reservation.nomor_kursi : [reservation.nomor_kursi];
-      console.log('✅ Found seats in reservation:', seats);
       return seats;
     }
 
-    console.log('❌ No seats found from any source');
     return [];
   }, [searchParams, selectedSeats, summaryData, reservation]);
 
@@ -95,8 +87,6 @@ const BookingSummary = ({
     if (isDataLoaded) return; // Prevent re-loading
 
     const loadData = async () => {
-      console.log('🔍 [BookingSummary] Loading initial data:', { routeId, reservationId });
-
       try {
         // Load route data first
         if (routeId) {
@@ -125,7 +115,6 @@ const BookingSummary = ({
 
     // Only update if seats actually changed
     if (JSON.stringify(extractedSeats) !== JSON.stringify(finalSeats)) {
-      console.log('🔍 [BookingSummary] Updating final seats:', extractedSeats);
       setFinalSeats(extractedSeats);
 
       // Store in sessionStorage as backup
@@ -169,7 +158,6 @@ const BookingSummary = ({
 
     // Only update if there's a meaningful change
     if (!summaryData || JSON.stringify(summaryData.nomor_kursi) !== JSON.stringify(finalSeats)) {
-      console.log('✅ [BookingSummary] Created comprehensive summary:', newSummaryData);
       setSummaryData(newSummaryData);
     }
   }, [selectedRoute, finalSeats, reservation, user, routeId, summaryData]);
@@ -180,7 +168,6 @@ const BookingSummary = ({
     if (finalSeats.length > 0) return; // We have seats, no need to redirect
     if (reservationId && reservationId !== 'temp') return; // Has reservation, might have seats in API
 
-    console.log('⚠️ [BookingSummary] No seats found and no reservation, redirecting to booking');
     navigate(`/booking/${routeId}`);
   }, [finalSeats, reservationId, routeId, navigate, isDataLoaded]);
 
@@ -222,8 +209,6 @@ const BookingSummary = ({
         email,
         no_telepon: noTelepon
       };
-
-      console.log('🔍 [BookingSummary] Creating booking:', bookingData);
 
       const result = await createBookingFromReservation(bookingData);
 
@@ -285,7 +270,6 @@ const BookingSummary = ({
   };
 
   const handleReservationExpired = () => {
-    console.log('⏰ [BookingSummary] Reservation expired');
     setAlert('Waktu reservasi telah habis. Silakan pilih kursi kembali.', 'warning');
     navigate('/search-results');
   };

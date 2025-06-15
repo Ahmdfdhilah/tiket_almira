@@ -29,19 +29,12 @@ const AdminTicketList = ({
   const [ticketToDelete, setTicketToDelete] = useState(null);
 
   useEffect(() => {
-    console.log('🔍 [AdminTicketList] Component mounted, fetching tickets...');
     getAllAdminTickets();
   }, [getAllAdminTickets]);
 
   // Filter tickets based on search and status
   useEffect(() => {
     if (tickets) {
-      console.log('🔍 [AdminTicketList] Filtering tickets:', { 
-        totalTickets: tickets.length, 
-        searchTerm, 
-        filterStatus 
-      });
-      
       let filtered = tickets.filter(ticket => 
         ticket.User?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ticket.Rute?.asal?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,13 +47,11 @@ const AdminTicketList = ({
       }
 
       setFilteredTickets(filtered);
-      console.log('✅ [AdminTicketList] Filtered tickets:', filtered.length);
     }
   }, [tickets, searchTerm, filterStatus]);
 
   // Status update handlers
   const handleStatusClick = (ticket) => {
-    console.log('🔍 [AdminTicketList] Opening status modal for ticket:', ticket.id_tiket);
     setTicketToUpdate(ticket);
     setNewStatus(ticket.status_tiket);
     setShowStatusModal(true);
@@ -68,12 +59,6 @@ const AdminTicketList = ({
 
   const handleStatusSubmit = () => {
     if (ticketToUpdate && newStatus !== ticketToUpdate.status_tiket) {
-      console.log('🔍 [AdminTicketList] Updating ticket status:', {
-        ticketId: ticketToUpdate.id_tiket,
-        oldStatus: ticketToUpdate.status_tiket,
-        newStatus
-      });
-      
       updateTicketStatus(ticketToUpdate.id_tiket, { status_tiket: newStatus });
     }
     setShowStatusModal(false);
@@ -82,14 +67,12 @@ const AdminTicketList = ({
 
   // Delete handlers
   const handleDeleteClick = (ticket) => {
-    console.log('🔍 [AdminTicketList] Opening delete modal for ticket:', ticket.id_tiket);
     setTicketToDelete(ticket);
     setShowDeleteModal(true);
   };
 
   const handleDeleteConfirm = () => {
     if (ticketToDelete) {
-      console.log('🔍 [AdminTicketList] Deleting ticket:', ticketToDelete.id_tiket);
       deleteAdminTicket(ticketToDelete.id_tiket);
       setShowDeleteModal(false);
       setTicketToDelete(null);
@@ -97,12 +80,10 @@ const AdminTicketList = ({
   };
 
   if (loading) {
-    console.log('🔍 [AdminTicketList] Loading state');
     return <Spinner />;
   }
 
   if (error) {
-    console.error('❌ [AdminTicketList] Error state:', error);
     return (
       <div className="bg-red-100 text-red-700 p-4 rounded-lg">
         {error}
@@ -116,13 +97,6 @@ const AdminTicketList = ({
     { value: 'completed', label: 'Completed', color: 'bg-pink-100 text-pink-800' },
     { value: 'cancelled', label: 'Cancelled', color: 'bg-red-100 text-red-800' }
   ];
-
-  console.log('🔍 [AdminTicketList] Rendering with:', {
-    totalTickets: tickets?.length || 0,
-    filteredTickets: filteredTickets.length,
-    loading,
-    error
-  });
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">

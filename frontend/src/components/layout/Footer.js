@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {/* Brand Section */}
           <div className="text-center md:text-left">
-            <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">SIMANTAP</h3>
+            <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Almira</h3>
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed max-w-sm mx-auto md:mx-0">
               Layanan pemesanan tiket bus terpercaya dengan berbagai pilihan rute dan jadwal.
             </p>
@@ -86,7 +86,7 @@ const Footer = () => {
               </li>
               <li className="flex flex-col md:flex-row md:items-center text-gray-400 text-xs sm:text-sm">
                 <i className="fas fa-phone mb-1 md:mb-0 md:mr-3 flex-shrink-0 mx-auto md:mx-0"></i>
-                <span>+62 853 8147 1685</span>
+                <span>+62 812-2549-6270</span>
               </li>
               <li className="flex flex-col md:flex-row md:items-center text-gray-400 text-xs sm:text-sm">
                 <i className="fas fa-envelope mb-1 md:mb-0 md:mr-3 flex-shrink-0 mx-auto md:mx-0"></i>
