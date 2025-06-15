@@ -69,7 +69,6 @@ const PaymentFinishPage = ({
             try {
               sessionStorage.removeItem('selectedSeats');
               sessionStorage.removeItem('routeId');
-              console.log('✅ Session storage cleared after successful payment');
             } catch (error) {
               console.warn('Could not clear session storage:', error);
             }
