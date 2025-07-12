@@ -218,6 +218,7 @@ exports.createPaymentToken = async (req, res) => {
 };
 
 // Handle Midtrans webhook notification
+// FIXED: Replace handleNotification function di pembayaranController.js
 exports.handleNotification = async (req, res) => {
   const webhookLogger = require('../utils/webhookLogger');
 
@@ -226,9 +227,6 @@ exports.handleNotification = async (req, res) => {
     const orderId = notification.order_id;
     const transactionStatus = notification.transaction_status;
     const fraudStatus = notification.fraud_status;
-
-    // Log webhook received
-    webhookLogger.logWebhookReceived(notification);
 
     // Verify notification authenticity
     const hash = crypto
@@ -316,39 +314,43 @@ exports.handleNotification = async (req, res) => {
       }
       await payment.save({ transaction });
 
-      // Update ticket status - HANDLE GROUPED TICKETS
+      // Update ALL tickets in order group
       const masterTicket = payment.Tiket;
       const oldTicketStatus = masterTicket.status_tiket;
       
       if (masterTicket.order_group_id) {
-        // NEW SYSTEM: Update all tickets in the order group
-        const updateResult = await Tiket.update(
-          { 
-            status_tiket: newTicketStatus 
+        console.log('orderGroupId:', masterTicket.order_group_id);
+        
+        // Get all tickets in the group
+        const allTicketsInGroup = await Tiket.findAll({
+          where: {
+            order_group_id: masterTicket.order_group_id
           },
-          {
-            where: {
-              order_group_id: masterTicket.order_group_id
-            },
-            transaction
+          attributes: ['id_tiket', 'nomor_kursi', 'status_tiket'],
+          transaction
+        });
+
+        // Update each ticket individually
+        for (const ticketInGroup of allTicketsInGroup) {
+          try {
+            await Tiket.update(
+              { status_tiket: newTicketStatus },
+              { 
+                where: { id_tiket: ticketInGroup.id_tiket },
+                transaction 
+              }
+            );
+          } catch (individualError) {
+            console.error(`Update failed for ticket ${ticketInGroup.id_tiket}:`, individualError.message);
           }
-        );
-        
-        console.log(`Updated ${updateResult[0]} tickets in order group ${masterTicket.order_group_id} to status: ${newTicketStatus}`);
-        
-        // Also update the master ticket to ensure it's updated
-        if (updateResult[0] === 0) {
-          console.log(`Warning: No tickets were updated for order group ${masterTicket.order_group_id}, updating master ticket individually`);
-          masterTicket.status_tiket = newTicketStatus;
-          await masterTicket.save({ transaction });
         }
+        
       } else {
-        // LEGACY SYSTEM: Update single ticket
+        // Single ticket update
         masterTicket.status_tiket = newTicketStatus;
         await masterTicket.save({ transaction });
       }
       
-      // Commit transaction
       await transaction.commit();
     
       // Log status changes
@@ -411,11 +413,10 @@ exports.handleNotification = async (req, res) => {
           };
           
           await sendPaymentConfirmation(ticketData);
-          console.log(`✅ Payment confirmation email sent successfully to: ${masterTicket.User.email} for ${allSeats.length} tickets`);
+          console.log('✅ Email confirmation sent successfully');
           
         } catch (emailError) {
           console.error('❌ Failed to send payment confirmation email:', emailError.message);
-          // Don't fail the whole transaction if email fails
         }
       }
 
@@ -426,10 +427,13 @@ exports.handleNotification = async (req, res) => {
       
     } catch (transactionError) {
       await transaction.rollback();
+      console.error('❌ Transaction rollback:', transactionError.message);
       throw transactionError;
     }
 
   } catch (error) {
+    console.error('❌ Webhook error:', error.message);
+    
     const webhookLogger = require('../utils/webhookLogger');
     webhookLogger.logWebhookError(req.body?.order_id || 'unknown', error, req.body);
 
@@ -505,9 +509,42 @@ exports.checkPaymentStatus = async (req, res) => {
             payment.payment_type = statusResponse.payment_type;
             await payment.save({ transaction });
 
-            // Update ticket status
-            payment.Tiket.status_tiket = 'confirmed';
-            await payment.Tiket.save({ transaction });
+            // Update ALL tickets in order group
+            const masterTicket = payment.Tiket;
+            const newTicketStatus = 'confirmed';
+            
+            if (masterTicket.order_group_id) {
+              console.log('orderGroupId:', masterTicket.order_group_id);
+              
+              // Get all tickets in the group
+              const allTicketsInGroup = await Tiket.findAll({
+                where: {
+                  order_group_id: masterTicket.order_group_id
+                },
+                attributes: ['id_tiket', 'nomor_kursi', 'status_tiket'],
+                transaction
+              });
+
+              // Update each ticket individually
+              for (const ticketInGroup of allTicketsInGroup) {
+                try {
+                  await Tiket.update(
+                    { status_tiket: newTicketStatus },
+                    { 
+                      where: { id_tiket: ticketInGroup.id_tiket },
+                      transaction 
+                    }
+                  );
+                } catch (individualError) {
+                  console.error(`Update failed for ticket ${ticketInGroup.id_tiket}:`, individualError.message);
+                }
+              }
+              
+            } else {
+              // Single ticket update
+              masterTicket.status_tiket = newTicketStatus;
+              await masterTicket.save({ transaction });
+            }
             
             await transaction.commit();
             statusUpdated = true;
@@ -520,25 +557,41 @@ exports.checkPaymentStatus = async (req, res) => {
             try {
               const { sendPaymentConfirmation } = require('../utils/sendEmail');
               
+              // Get all seats for email notification
+              let allSeats = [masterTicket.nomor_kursi];
+              if (masterTicket.order_group_id) {
+                const allTicketsInOrder = await Tiket.findAll({
+                  where: {
+                    order_group_id: masterTicket.order_group_id,
+                    id_user: masterTicket.id_user
+                  },
+                  attributes: ['nomor_kursi'],
+                  order: [['nomor_kursi', 'ASC']]
+                });
+                allSeats = allTicketsInOrder.map(t => t.nomor_kursi);
+              }
+              
               const ticketData = {
-                email: payment.Tiket.User.email,
-                username: payment.Tiket.User.username,
+                email: masterTicket.User.email,
+                username: masterTicket.User.username,
                 orderId: payment.transaction_id,
-                ticketId: payment.Tiket.id_tiket,
-                seatNumber: payment.Tiket.nomor_kursi,
+                ticketId: masterTicket.id_tiket,
+                seatNumber: allSeats.length > 1 ? allSeats.join(', ') : allSeats[0],
+                totalTickets: allSeats.length,
+                orderGroupId: masterTicket.order_group_id,
                 route: {
-                  asal: payment.Tiket.Rute.asal,
-                  tujuan: payment.Tiket.Rute.tujuan
+                  asal: masterTicket.Rute.asal,
+                  tujuan: masterTicket.Rute.tujuan
                 },
-                departureTime: payment.Tiket.Rute.waktu_berangkat,
-                busName: payment.Tiket.Rute.Bus?.nama_bus || 'Bus Almira',
+                departureTime: masterTicket.Rute.waktu_berangkat,
+                busName: masterTicket.Rute.Bus?.nama_bus || 'Bus Almira',
                 amount: parseFloat(statusResponse.gross_amount),
                 paymentMethod: statusResponse.payment_type || 'Midtrans',
                 paymentTime: new Date()
               };
               
               await sendPaymentConfirmation(ticketData);
-              console.log('✅ Payment confirmation email sent via polling to:', payment.Tiket.User.email);
+              console.log('✅ Payment confirmation email sent via polling to:', masterTicket.User.email);
               
             } catch (emailError) {
               console.error('❌ Failed to send payment confirmation email via polling:', emailError.message);
