@@ -1,13 +1,15 @@
 const express = require('express');
 const {
+  // Existing functions
   getAllUsers,
-  getUserById, 
+  getUserById,
   updateUser,
   deleteUser,
   createBus,
   getAllBuses,
   updateBus,
   deleteBus,
+  getAvailableBuses,
   createRoute,
   updateRoute,
   deleteRoute,
@@ -16,16 +18,43 @@ const {
   updateTicketStatus,
   getDashboardStats,
   createUser,
-  deleteTicket
+  deleteTicket,
+  createVerifiedUser,
+  
+  // NEW: Super Admin specific methods
+  getSuperAdminDashboardStats,
+  getAllAdministrators,
+  createVerifiedUserEnhanced,
+  getSystemAnalytics
 } = require('../controllers/adminController');
 
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, authorizeSuperAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Protect all routes and authorize only admin
+// Protect all routes
 router.use(protect);
-router.use(authorize('admin'));
+
+// ================================
+// 🚀 SUPER ADMIN EXCLUSIVE ROUTES
+// ================================
+
+// Super Admin Dashboard - Enhanced stats
+router.get('/super/dashboard/stats', authorizeSuperAdmin, getSuperAdminDashboardStats);
+
+// Super Admin User Management
+router.get('/super/administrators', authorizeSuperAdmin, getAllAdministrators);
+router.post('/super/users/create-verified', authorizeSuperAdmin, createVerifiedUserEnhanced);
+
+// Super Admin Analytics
+router.get('/super/analytics', authorizeSuperAdmin, getSystemAnalytics);
+
+// ================================
+// REGULAR ADMIN ROUTES (both admin and super_admin can access)
+// ================================
+
+// Apply admin/super_admin authorization for remaining routes
+router.use(authorize('admin', 'super_admin'));
 
 // User management routes
 router.get('/users', getAllUsers);
@@ -34,9 +63,13 @@ router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 router.post('/users', createUser);
 
+// EXISTING: Super admin can create verified users (backward compatibility)
+router.post('/users/create-verified', authorize('super_admin'), createVerifiedUser);
+
 // Bus management routes
 router.post('/buses', createBus);
 router.get('/buses', getAllBuses);
+router.get('/buses/available', getAvailableBuses);  
 router.put('/buses/:id', updateBus);
 router.delete('/buses/:id', deleteBus);
 
@@ -51,7 +84,7 @@ router.get('/tickets', getAllTickets);
 router.put('/tickets/:id/status', updateTicketStatus);
 router.delete('/tickets/:id', deleteTicket);
 
-// Dashboard stats
+// Dashboard stats (regular admin dashboard)
 router.get('/dashboard/stats', getDashboardStats);
 
 module.exports = router;
